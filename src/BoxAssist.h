@@ -13,6 +13,9 @@ public:
 
 private:
     std::string extensionName() override;
+
+    variant_t calculate(const variant_t &input, const variant_t &n, const variant_t &sum);
+    variant_t test(const variant_t &input);
 };
 
 

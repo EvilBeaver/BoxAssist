@@ -7,19 +7,72 @@
 #include <stdexcept>
 #include <string>
 
+std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int n, int sum);
+std::vector<uint16_t> readFromBytes(std::vector<char> source);
+std::vector<char> writeToBytes(const std::vector<uint16_t> &calcResult);
+
 std::string BoxAssist::extensionName() {
     return "BoxAssist";
 }
 
+union binLayout {
+    uint16_t intValue;
+    char bytePart[2];
+};
+
 BoxAssist::BoxAssist() {
 
+    AddMethod(L"Calculate", L"Вычислить", this, &BoxAssist::calculate);
+
+    AddMethod(L"Test", L"Тест", this, &BoxAssist::test);
+
+}
+
+variant_t BoxAssist::calculate(const variant_t &input, const variant_t &n, const variant_t &sum) {
+
+    if (std::holds_alternative<std::vector<char>>(input)
+            && std::holds_alternative<int32_t>(n)
+            && std::holds_alternative<int32_t>(n)) {
+
+        auto extractedData = readFromBytes(std::get<std::vector<char>>(input));
+        auto nAsInt = std::get<int32_t>(n);
+        auto sumAsInt = std::get<int32_t>(sum);
+
+        auto calcResult = isSubsetSum(extractedData, nAsInt, sumAsInt);
+
+        return writeToBytes(calcResult);
+
+    } else {
+        throw std::runtime_error(u8"Неподдерживаемые типы данных в параметрах");
+    }
+
+}
+
+std::vector<char> writeToBytes(const std::vector<uint16_t> &calcResult) {
+    std::vector<char> result;
+    result.reserve(calcResult.size() * sizeof(uint16_t));
+
+    for (unsigned short i : calcResult) {
+        binLayout parts = {0};
+        parts.intValue = i;
+
+        result.push_back(parts.bytePart[0]);
+        result.push_back(parts.bytePart[1]);
+    }
+
+    return result;
+}
+
+variant_t BoxAssist::test(const variant_t &input) {
+    auto read = readFromBytes(std::get<std::vector<char>>(input));
+    return writeToBytes(read);
 }
 
 // Returns size of maximum sized subset
 // if there is a subset of set[] with sun
 // equal to given sum. It returns -1 if there
 // is no subset with given sum.
-std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int setLen, int n, int sum)
+std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int n, int sum)
 {
     // The value of subset[i][j] will be true if there
     // is a subset of set[0..j-1] with sum equal to i
@@ -72,12 +125,13 @@ std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int setLen, int n, 
 }
 
 std::vector<uint16_t> readFromBytes(std::vector<char> source) {
-    std::vector<uint16_t> dest(source.size()/2);
-    for (int i = 0; i < source.size()/2; ++i) {
+    std::vector<uint16_t> dest;
+    dest.reserve(source.size() / sizeof(uint16_t));
+    for (int i = 0; i < source.size() / sizeof(uint16_t); ++i) {
         uint16_t hi = static_cast<u_char>(source[2 * i]);
         uint16_t lo = static_cast<u_char>(source[2 * i + 1]);
         dest.push_back((hi << 8) | lo);
     }
-    std::vector<uint16_t> d(234);
-    isSubsetSum(d, dest.size(), 20, dest.size() -1);
+
+    return dest;
 }
