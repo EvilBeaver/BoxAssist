@@ -1,4 +1,4 @@
-LIBRARY "SampleAddIn"
+LIBRARY "BoxAssist"
 
 EXPORTS
 GetClassObject

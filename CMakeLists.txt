@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
-project(SampleAddIn)
+project(BoxAssist)
 
 set(CMAKE_CXX_STANDARD 17)
-set(TARGET SampleAddIn)
+set(TARGET BoxAssist)
 
 option(CASE_INSENSITIVE "Case insensitive method names" ON)
 option(STATIC_CRT "Static CRT linkage" ON)
@@ -15,8 +15,9 @@ list(APPEND SOURCES
         src/exports.cpp
         src/Component.cpp
         src/Component.h
-        src/SampleAddIn.cpp
-        src/SampleAddIn.h)
+        src/BoxAssist.cpp
+        src/BoxAssist.h
+        )
 
 if (ANDROID)
     list(APPEND SOURCES
@@ -25,7 +26,7 @@ if (ANDROID)
 endif ()
 
 add_library(${TARGET} SHARED
-        ${SOURCES} src/BoxAssist.cpp src/BoxAssist.h)
+        ${SOURCES})
 
 target_compile_definitions(${TARGET} PRIVATE
         UNICODE

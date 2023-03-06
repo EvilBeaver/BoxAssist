@@ -11,6 +11,13 @@ std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int n, int sum);
 std::vector<uint16_t> readFromBytes(std::vector<char> source);
 std::vector<char> writeToBytes(const std::vector<uint16_t> &calcResult);
 
+#define MATRIX(type, m, n) std::vector<std::vector<type>>(m, std::vector<type>(n))
+#ifdef __linux__
+#define MAX std::max
+#else
+#define MAX max
+#endif
+
 std::string BoxAssist::extensionName() {
     return "BoxAssist";
 }
@@ -28,17 +35,15 @@ BoxAssist::BoxAssist() {
 
 }
 
-variant_t BoxAssist::calculate(const variant_t &input, const variant_t &n, const variant_t &sum) {
+variant_t BoxAssist::calculate(const variant_t &input, const variant_t &sum) {
 
     if (std::holds_alternative<std::vector<char>>(input)
-            && std::holds_alternative<int32_t>(n)
-            && std::holds_alternative<int32_t>(n)) {
+            && std::holds_alternative<int32_t>(sum)) {
 
         auto extractedData = readFromBytes(std::get<std::vector<char>>(input));
-        auto nAsInt = std::get<int32_t>(n);
         auto sumAsInt = std::get<int32_t>(sum);
 
-        auto calcResult = isSubsetSum(extractedData, nAsInt, sumAsInt);
+        auto calcResult = isSubsetSum(extractedData, extractedData.size(), sumAsInt);
 
         return writeToBytes(calcResult);
 
@@ -76,9 +81,10 @@ std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int n, int sum)
 {
     // The value of subset[i][j] will be true if there
     // is a subset of set[0..j-1] with sum equal to i
-    bool subset[sum + 1][n + 1];
-    int count[sum + 1][n + 1];
-    std::vector<uint16_t> val[sum + 1][n + 1]; // Тут докидываем еще один массив который будет содержать решение с контейенрами
+
+    auto subset = MATRIX(bool, sum + 1, n + 1);
+    auto count = MATRIX(int, sum + 1, n + 1);
+    auto val = MATRIX(std::vector<uint16_t>, sum + 1, n + 1);
 
     // If sum is 0, then answer is true
     for (int i = 0; i <= n; i++)
@@ -109,8 +115,9 @@ std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int n, int sum)
                 subset[i][j] = subset[i][j] ||
                                subset[i - set[j - 1]][j - 1];
 
-                if (subset[i][j])count[i][j] = std::max(count[i][j - 1],
-                                      count[i - set[j - 1]][j - 1] + 1);
+                if (subset[i][j]) {
+                    count[i][j] = MAX(count[i][j - 1], count[i - set[j - 1]][j - 1] + 1);
+                }
 
 
                 if (count[i][j] > count[i][j-1]) {
@@ -127,10 +134,15 @@ std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int n, int sum)
 std::vector<uint16_t> readFromBytes(std::vector<char> source) {
     std::vector<uint16_t> dest;
     dest.reserve(source.size() / sizeof(uint16_t));
-    for (int i = 0; i < source.size() / sizeof(uint16_t); ++i) {
-        uint16_t hi = static_cast<u_char>(source[2 * i]);
-        uint16_t lo = static_cast<u_char>(source[2 * i + 1]);
-        dest.push_back((hi << 8) | lo);
+    for (size_t i = 0; i < source.size() / sizeof(uint16_t); ++i) {
+        auto hi = static_cast<u_char>(source[2 * i]);
+        auto lo = static_cast<u_char>(source[2 * i + 1]);
+
+        binLayout reader{};
+        reader.bytePart[0] = hi;
+        reader.bytePart[1] = lo;
+
+        dest.push_back(reader.intValue);
     }
 
     return dest;
