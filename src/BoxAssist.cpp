@@ -152,7 +152,15 @@ std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int n, int sum)
         }
     }
 
-    return val[sum][n];
+    auto index = sum;
+    for (int i = sum; i >= 0; --i) {
+         if (subset[i][n]) {
+             index = i;
+             break;
+         }
+    }
+
+    return val[index][n];
 }
 
 std::vector<uint16_t> readFromBytes(std::vector<char> source) {
