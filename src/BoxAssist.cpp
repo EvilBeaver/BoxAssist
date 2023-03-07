@@ -48,8 +48,7 @@ variant_t BoxAssist::calculate(const variant_t &input, const variant_t &sum) {
         auto extractedData = readFromBytes(std::get<std::vector<char>>(input));
         auto sumAsInt = std::get<int32_t>(sum);
 
-
-        auto maxCount = std::accumulate(extractedData.begin(), extractedData.end(), decltype(extractedData)::value_type(0));
+        auto maxCount = std::reduce(extractedData.begin(), extractedData.end());
         if (sumAsInt >= maxCount) {
             std::vector<uint16_t> all(extractedData.size());
             std::iota(begin(all), end(all), 0);
