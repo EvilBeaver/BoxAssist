@@ -110,6 +110,7 @@ std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int n, int sum)
         {
             subset[i][j] = subset[i][j - 1];
             count[i][j] = count[i][j - 1];
+            val[i][j] = val[i][j - 1];
             if (i >= set[j - 1])
             {
                 subset[i][j] = subset[i][j] ||
