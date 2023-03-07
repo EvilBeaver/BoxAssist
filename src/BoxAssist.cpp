@@ -6,10 +6,13 @@
 
 #include <stdexcept>
 #include <string>
+#include <sstream>
+#include <numeric>
 
 std::vector<uint16_t> isSubsetSum(std::vector<uint16_t> set, int n, int sum);
 std::vector<uint16_t> readFromBytes(std::vector<char> source);
 std::vector<char> writeToBytes(const std::vector<uint16_t> &calcResult);
+std::string intTostring(const std::vector<uint16_t> &calcResult);
 
 #define MATRIX(type, m, n) std::vector<std::vector<type>>(m, std::vector<type>(n))
 #ifdef __linux__
@@ -45,7 +48,7 @@ variant_t BoxAssist::calculate(const variant_t &input, const variant_t &sum) {
 
         auto calcResult = isSubsetSum(extractedData, extractedData.size(), sumAsInt);
 
-        return writeToBytes(calcResult);
+        return intTostring(calcResult);
 
     } else {
         throw std::runtime_error(u8"Неподдерживаемые типы данных в параметрах");
@@ -67,6 +70,20 @@ std::vector<char> writeToBytes(const std::vector<uint16_t> &calcResult) {
 
     return result;
 }
+
+std::string intTostring(const std::vector<uint16_t> &calcResult) {
+    std::stringstream ss;
+    for(size_t i = 0; i < calcResult.size(); ++i)
+    {
+        if(i != 0)
+            ss << ",";
+        ss << calcResult[i];
+    }
+    std::string s = ss.str();
+
+    return s;
+}
+
 
 variant_t BoxAssist::test(const variant_t &input) {
     auto read = readFromBytes(std::get<std::vector<char>>(input));
