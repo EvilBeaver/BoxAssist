@@ -13,13 +13,17 @@ jobs:
           - os:  windows-2019
             arch: x64
             generator: VS16Win64
+            artifact: Release/BoxAssist.dll
           - os:  windows-2019
             arch: x86
             generator: VS16Win32
+            artifact: Release/BoxAssist.dll
           - os: ubuntu-latest
             generator: Ninja
+            artifact: libBoxAssist.so
           - os: macos-latest
             generator: Ninja
+            artifact: libBoxAssist.dylib
         exclude:
           - os: ubuntu-latest
             arch: x86
@@ -38,3 +42,8 @@ jobs:
           buildDirectory: ${{ runner.workspace }}/build
           cmakeGenerator: ${{ matrix.generator }}
           cmakeBuildType: Release
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: libs
+          path: ${{ runner.workspace }}/build/${{ matrix.artifact }}
