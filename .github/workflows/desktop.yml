@@ -81,8 +81,11 @@ jobs:
         with:
           name: package
           path: ${{ runner.workspace }}/release/
-      - name: Release
+      - name: create Release
+        run: zip -r package.zip .
+        working-directory: ${{ runner.workspace }}/release/
+      - name: upload Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ${{ runner.workspace }}/release/
+          files: ${{ runner.workspace }}/release/package.zip
