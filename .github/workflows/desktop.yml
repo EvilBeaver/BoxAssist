@@ -7,28 +7,40 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-2019, ubuntu-latest, macos-latest]
+        os: [ windows-2019, ubuntu-20.04, macos-latest]
         arch: [x86, x64]
         include:
           - os:  windows-2019
             arch: x64
             generator: VS16Win64
             artifact: Release/BoxAssist.dll
+            dstname: BoxAssist64.dll
           - os:  windows-2019
             arch: x86
             generator: VS16Win32
             artifact: Release/BoxAssist.dll
-          - os: ubuntu-latest
+            dstname: BoxAssist32.dll
+          - os: ubuntu-20.04
+            arch: x64
             generator: Ninja
             artifact: libBoxAssist.so
+            dstname: BoxAssist64.so
+          - os: ubuntu-20.04
+            arch: x86
+            generator: Ninja
+            artifact: libBoxAssist.so
+            dstname: BoxAssist32.so
           - os: macos-latest
             generator: Ninja
             artifact: libBoxAssist.dylib
+            dstname: BoxAssist64.dylib
         exclude:
-          - os: ubuntu-latest
-            arch: x86
+          # - os: ubuntu-latest
+          #   arch: x86
           - os: macos-latest
             arch: x86
+          # - os: windows-2019
+          #   arch: x86
 
     steps:
       - uses: actions/checkout@v3
@@ -36,14 +48,36 @@ jobs:
       - run: sudo apt install uuid-dev
         if: matrix.os == 'ubuntu-latest'
       
-      - uses: lukka/run-cmake@v2
+      - uses: lukka/run-cmake@v2.5
         id: runcmake_cmd
         with:
           buildDirectory: ${{ runner.workspace }}/build
           cmakeGenerator: ${{ matrix.generator }}
           cmakeBuildType: Release
-
+      - run: cp ${{ runner.workspace }}/build/${{ matrix.artifact }} ${{ runner.workspace }}/build/${{ matrix.dstname }} 
       - uses: actions/upload-artifact@v3
         with:
           name: libs
-          path: ${{ runner.workspace }}/build/${{ matrix.artifact }}
+          path: ${{ runner.workspace }}/build/${{ matrix.dstname }}
+  release:
+     runs-on: ubuntu-latest
+     needs: build
+     steps: 
+      - uses: actions/checkout@v3
+      - run: mkdir download 
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: libs
+          path: download
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: download
+      - run: | 
+          mkdir ${{ runner.workspace }}/release
+          cp MANIFEST.xml ${{ runner.workspace }}/release/MANIFEST.xml
+          cp download/* ${{ runner.workspace }}/release/
+      - uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: ${{ runner.workspace }}/release/

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundle xmlns="http://v8.1c.ru/8.2/addin/bundle">
+  <component os="Windows" path="BoxAssist64.dll" type="native" arch="x86_64"/>
+  <component os="Windows" path="BoxAssist32.dll" type="native" arch="i386"/>
+  <component os="Linux" path="BoxAssist64.so" type="native" arch="x86_64"/>
+  <component os="Linux" path="BoxAssist32.so" type="native" arch="i386"/>
+  <component os="MacOS" path="BoxAssist64.dylib" type="native" arch="x86_64" />
+</bundle>
