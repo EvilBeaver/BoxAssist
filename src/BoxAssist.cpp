@@ -17,6 +17,8 @@ std::string intTostring(const std::vector<uint16_t> &calcResult);
 #define MATRIX(type, m, n) std::vector<std::vector<type>>(m, std::vector<type>(n))
 #ifdef __linux__
 #define MAX std::max
+#elif defined __APPLE__
+#define MAX std::max
 #else
 #define MAX max
 #endif
