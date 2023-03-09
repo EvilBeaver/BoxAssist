@@ -5,6 +5,8 @@ Based on https://github.com/Infactum/addin-template by @Infactum
 
 ## Subsum problem
 
+https://en.wikipedia.org/wiki/Subset_sum_problem
+
 Here we need to find the indexes of the maximum size subset whose sum is equal to the given sum.
 
 ```
